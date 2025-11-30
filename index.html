@@ -1,0 +1,1004 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title id="doc-title">Anqlba – Inclusive Learning & Support Platform</title>
+    <!-- Load Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Custom configuration for Tailwind -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'anqlba-primary': '#4F46E5', // Indigo 600
+                        'anqlba-secondary': '#3B82F6', // Blue 500
+                        'anqlba-accent': '#10B981', // Emerald 500
+                        'anqlba-text': '#1F2937', // Dark gray
+                        'anqlba-bg': '#F9FAFB', // Light background
+                        'anqlba-success': '#059669',
+                        'anqlba-error': '#DC2626',
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                }
+            }
+        }
+    </script>
+    <style>
+        /* Ensuring smooth scrolling for navigation */
+        html {
+            scroll-behavior: smooth;
+        }
+        /* Custom styles for game interactivity */
+        .game-card {
+            transition: transform 0.2s, box-shadow 0.2s;
+            cursor: pointer;
+        }
+        .game-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        }
+        .color-box {
+            transition: transform 0.1s, opacity 0.1s;
+        }
+        .color-box:active {
+            transform: scale(0.95);
+        }
+        .emotion-button {
+            transition: transform 0.1s;
+        }
+        .emotion-button:active {
+            transform: scale(0.9);
+        }
+    </style>
+</head>
+<body class="bg-anqlba-bg text-anqlba-text font-sans antialiased">
+    <!-- Message Box for Alerts (Replaces alert()) -->
+    <div id="message-box" class="fixed inset-0 z-[100] hidden items-center justify-center bg-gray-900 bg-opacity-50">
+        <div class="bg-white p-6 rounded-xl shadow-2xl max-w-sm w-full text-center">
+            <h4 id="message-title" class="text-xl font-bold text-anqlba-primary mb-3">Notification</h4>
+            <p id="message-content" class="text-gray-700 mb-4">Content goes here.</p>
+            <button onclick="document.getElementById('message-box').classList.add('hidden')" class="bg-anqlba-accent text-white py-2 px-4 rounded-lg hover:bg-emerald-600 transition">OK</button>
+        </div>
+    </div>
+
+    <!-- Header / Navigation -->
+    <header class="sticky top-0 z-50 bg-white shadow-lg">
+        <nav class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex justify-between items-center">
+            <!-- Logo/Platform Name -->
+            <a href="#" class="text-3xl font-extrabold text-anqlba-primary tracking-tight">
+                Anqlba
+            </a>
+
+            <!-- Language Selector -->
+            <div class="flex items-center space-x-4">
+                <select id="language-selector" onchange="changeLanguage(this.value)" class="p-2 border border-gray-300 rounded-lg text-sm bg-white shadow-sm focus:ring-anqlba-primary focus:border-anqlba-primary">
+                    <option value="en">English (EN)</option>
+                    <option value="am">አማርኛ (Amharic)</option>
+                    <option value="om">Afaan Oromoo (OM)</option>
+                </select>
+
+                <!-- Navigation Links (Hidden on small screens) -->
+                <div class="hidden md:flex space-x-4 text-lg font-medium">
+                    <a href="#features" class="nav-link text-anqlba-primary font-bold transition duration-150" data-en="Features" data-am="ዋና ክፍሎች" data-om="Qabxiiwan">Features</a>
+                    <a href="#users" class="nav-link text-anqlba-text hover:text-anqlba-primary transition duration-150" data-en="Users" data-am="ተጠቃሚዎች" data-om="Fayyadamtoota">Users</a>
+                    <a href="#games" class="nav-link text-anqlba-accent font-bold transition duration-150" data-en="Games" data-am="ጨዋታዎች" data-om="Taphoota">Games</a>
+                    <a href="#series" class="nav-link text-anqlba-secondary font-bold transition duration-150" data-en="Series" data-am="የስልጠና ተከታታይ" data-om="Qorannoo">Series</a>
+                    <!-- REMOVED: <a href="#accessibility" ...>Accessibility</a> - Now integrated into #features -->
+                    <a href="#pricing" class="nav-link text-anqlba-text hover:text-anqlba-primary transition duration-150" data-en="Pricing" data-am="ዋጋ" data-om="Gatii">Pricing</a>
+                </div>
+            </div>
+
+            <!-- CTA Button -->
+            <a href="#pricing" class="hidden md:block bg-anqlba-accent text-white py-2 px-6 rounded-lg shadow-md hover:bg-emerald-600 transition duration-150 font-semibold nav-cta" data-en="Start for Free" data-am="በነጻ ይጀምሩ" data-om="Bilisaan Jalqabi">
+                Start for Free
+            </a>
+
+            <!-- Mobile Menu Button (Hamburger) -->
+            <button id="mobile-menu-button" class="md:hidden p-2 text-anqlba-text rounded-lg hover:bg-gray-100 transition duration-150">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
+            </button>
+        </nav>
+
+        <!-- Mobile Menu (Initially Hidden) -->
+        <div id="mobile-menu" class="hidden md:hidden bg-white px-4 pt-2 pb-4 space-y-2 border-t border-gray-200">
+            <!-- Mobile links will be populated dynamically -->
+        </div>
+    </header>
+
+    <main>
+        <!-- 1. Hero Section (Platform Name & UVP) -->
+        <section class="py-20 lg:py-28 bg-white border-b border-gray-200">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+                <span id="hero-tag" class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-anqlba-primary/10 text-anqlba-primary shadow-inner mb-4">
+                    Unlock Ability, Empower Educators, Strengthen Collaboration
+                </span>
+                <h1 class="text-5xl md:text-6xl font-extrabold text-anqlba-text mb-6 leading-tight">
+                    <span class="text-anqlba-primary">Anqlba</span> – <span id="hero-title">The Inclusive Learning Ecosystem</span>
+                </h1>
+                <p id="hero-subtitle" class="text-xl md:text-2xl text-gray-600 max-w-3xl mx-auto mb-10">
+                    A modern, supportive platform designed to integrate personalized education, assistive communication, and behavioral insights for children and youth with special needs.
+                </p>
+                <a href="#features" id="hero-cta" class="inline-block bg-anqlba-primary text-white py-3 px-8 text-xl rounded-xl shadow-2xl shadow-anqlba-primary/40 hover:bg-indigo-700 transition duration-300 font-bold transform hover:scale-105">
+                    Explore Core Features
+                </a>
+            </div>
+        </section>
+
+        <!-- 5. Core Features and Inclusive Design Section (COMBINED) -->
+        <section id="features" class="py-16 lg:py-24 bg-anqlba-bg border-t border-gray-200">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <h2 class="text-3xl font-extrabold text-center text-anqlba-text mb-4">
+                    Core Features & Inclusive Design
+                </h2>
+                <p class="text-xl text-center text-gray-600 mb-16 max-w-3xl mx-auto">
+                    A comprehensive suite of tools built on AI, personalization, and deep accessibility standards.
+                </p>
+
+                <div class="space-y-16">
+                    <!-- Feature Block A: Student Personalized Learning (Existing Content) -->
+                    <div class="flex flex-col md:flex-row items-center bg-white p-6 md:p-12 rounded-2xl shadow-xl hover:shadow-2xl transition duration-500">
+                        <div class="md:w-1/2 md:pr-12 mb-6 md:mb-0">
+                            <span class="text-sm font-semibold text-anqlba-accent uppercase tracking-wider mb-2 block">Focus: Student Engagement</span>
+                            <h3 class="text-3xl font-bold text-anqlba-primary mb-4">Personalized Learning & Engagement</h3>
+                            <ul class="space-y-4 text-gray-700 list-inside">
+                                <li class="flex items-start">
+                                    <svg class="flex-shrink-0 w-6 h-6 mr-3 text-anqlba-accent" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 4.016M12 21v-2.75l-4-3.5 4-4.5 4 4.5-4 3.5V21z"></path></svg>
+                                    Adaptive learning paths for core cognitive, social, and academic skills.
+                                </li>
+                                <li class="flex items-start">
+                                    <svg class="flex-shrink-0 w-6 h-6 mr-3 text-anqlba-accent" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+                                    Visual learning cards and integrated AAC (Augmentative & Alternative Communication) boards.
+                                </li>
+                                <li class="flex items-start">
+                                    <svg class="flex-shrink-0 w-6 h-6 mr-3 text-anqlba-accent" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                                    Gamified tasks and sensory-friendly modes to maximize focus and motivation.
+                                </li>
+                            </ul>
+                        </div>
+                        <div class="md:w-1/2 bg-gray-100 p-6 rounded-xl shadow-inner border border-gray-200">
+                            <!-- Placeholder for a student-focused screenshot/illustration -->
+                            <div class="text-center text-gray-500 py-10">
+                                <svg class="w-16 h-16 mx-auto mb-4 text-anqlba-primary/50" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
+                                <p>Personalized Learning View</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Feature Block B: Accessibility & Localization (Merged Content) -->
+                    <div class="flex flex-col md:flex-row-reverse items-center bg-white p-6 md:p-12 rounded-2xl shadow-xl hover:shadow-2xl transition duration-500">
+                        <div class="md:w-1/2 md:pl-12 mb-6 md:mb-0">
+                            <span class="text-sm font-semibold text-anqlba-primary uppercase tracking-wider mb-2 block">Focus: Universal Design</span>
+                            <h3 class="text-3xl font-bold text-anqlba-secondary mb-4">Localization & Assistive Tools</h3>
+                            <ul class="space-y-4 text-gray-700 list-inside">
+                                <li class="flex items-start">
+                                    <svg class="flex-shrink-0 w-6 h-6 mr-3 text-anqlba-secondary" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.818 20.282A8.995 8.995 0 0112 21a9.001 9.001 0 006-15 4 4 0 11-8-4 8.996 8.996 0 00-2.182 3.718L2 15h4l-2 5z"></path></svg>
+                                    Integrated Text-to-Speech (TTS) for instant audio feedback on all descriptions and instructions.
+                                </li>
+                                <li class="flex items-start">
+                                    <svg class="flex-shrink-0 w-6 h-6 mr-3 text-anqlba-secondary" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5h12M9 3v2m1.048 9.293l1.32 1.32c.576.576 1.43 1.139 2.588 1.139.73 0 1.554-.153 2.146-.649.197-.168.326-.402.326-.649V16.5m-3.414-2.828l1.414-1.414m-5.656-5.656l1.414-1.414m-1.414 1.414l1.414 1.414m-1.414 1.414l1.414 1.414M16 12a4 4 0 100-8 4 4 0 000 8z"></path></svg>
+                                    Real-time translation for core content into Amharic and Afaan Oromo, powered by the Gemini API.
+                                </li>
+                                <li class="flex items-start">
+                                    <svg class="flex-shrink-0 w-6 h-6 mr-3 text-anqlba-secondary" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                                    High-contrast and low-distraction modes (sensory-friendly) for improved focus and reduced visual fatigue.
+                                </li>
+                            </ul>
+                        </div>
+                        <div class="md:w-1/2 bg-gray-100 p-6 rounded-xl shadow-inner border border-gray-200">
+                            <!-- Placeholder for a localization/TTS illustration -->
+                            <div class="text-center text-gray-500 py-10">
+                                <svg class="w-16 h-16 mx-auto mb-4 text-anqlba-secondary/50" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.642 0 3.093-.578 4.237-1.503M12 3c-1.642 0-3.093.578-4.237 1.503"></path></svg>
+                                <p>Accessible Design & Multi-Language Support</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 9. Teaching Series Section -->
+        <section id="series" class="py-16 lg:py-24 bg-white border-t border-gray-200">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <h2 class="text-3xl font-extrabold text-center text-anqlba-secondary mb-4" id="series-title-main">
+                    🎓 Key Teaching and Support Series
+                </h2>
+                <p class="text-xl text-center text-gray-600 mb-12 max-w-3xl mx-auto" id="series-subtitle-main">
+                    Expert-led modules to empower every member of the support team: Educators, Parents, and Caregivers.
+                </p>
+
+                <div class="grid md:grid-cols-3 gap-8">
+                    <!-- Series 1: Educator Series -->
+                    <div class="bg-anqlba-bg p-6 rounded-xl shadow-md border-t-4 border-anqlba-primary text-center flex flex-col justify-between">
+                        <div>
+                            <h4 class="text-xl font-bold text-anqlba-primary mb-4" id="series-title-1">1. IEP Mastery for Ethiopian Classrooms</h4>
+                            <p class="text-sm text-gray-700 mb-4 text-left" id="series-desc-1">
+                                A comprehensive training on creating, implementing, and tracking Individualized Education Programs (IEPs) that meet local standards while integrating global best practices for diverse special needs.
+                            </p>
+                        </div>
+                        <button onclick="speakContent('series-desc-1', this)" class="w-full mt-4 flex items-center justify-center space-x-2 bg-anqlba-primary/10 text-anqlba-primary py-2 px-4 rounded-lg text-sm hover:bg-anqlba-primary/20 transition series-speak-btn">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.818 20.282A8.995 8.995 0 0112 21a9.001 9.001 0 006-15 4 4 0 11-8-4 8.996 8.996 0 00-2.182 3.718L2 15h4l-2 5z"></path></svg>
+                            <span id="speak-label-1">Listen to Description</span>
+                        </button>
+                    </div>
+
+                    <!-- Series 2: Parent Series -->
+                    <div class="bg-anqlba-bg p-6 rounded-xl shadow-md border-t-4 border-anqlba-secondary text-center flex flex-col justify-between">
+                        <div>
+                            <h4 class="text-xl font-bold text-anqlba-secondary mb-4" id="series-title-2">2. Building Positive Home Routines</h4>
+                            <p class="text-sm text-gray-700 mb-4 text-left" id="series-desc-2">
+                                Practical strategies for parents and caregivers to establish consistent, supportive routines. Topics include behavioral support, sensory integration tips, and effective communication techniques at home.
+                            </p>
+                        </div>
+                        <button onclick="speakContent('series-desc-2', this)" class="w-full mt-4 flex items-center justify-center space-x-2 bg-anqlba-secondary/10 text-anqlba-secondary py-2 px-4 rounded-lg text-sm hover:bg-anqlba-secondary/20 transition series-speak-btn">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.818 20.282A8.995 8.995 0 0112 21a9.001 9.001 0 006-15 4 4 0 11-8-4 8.996 8.996 0 00-2.182 3.718L2 15h4l-2 5z"></path></svg>
+                            <span id="speak-label-2">Listen to Description</span>
+                        </button>
+                    </div>
+
+                    <!-- Series 3: Caregiver Series -->
+                    <div class="bg-anqlba-bg p-6 rounded-xl shadow-md border-t-4 border-anqlba-accent text-center flex flex-col justify-between">
+                        <div>
+                            <h4 class="text-xl font-bold text-anqlba-accent mb-4" id="series-title-3">3. Communication through Visuals (AAC)</h4>
+                            <p class="text-sm text-gray-700 mb-4 text-left" id="series-desc-3">
+                                A practical guide to using Augmentative and Alternative Communication (AAC) tools. Learn how to create custom visual supports, schedules, and communication boards tailored to the child's context.
+                            </p>
+                        </div>
+                        <button onclick="speakContent('series-desc-3', this)" class="w-full mt-4 flex items-center justify-center space-x-2 bg-anqlba-accent/10 text-anqlba-accent py-2 px-4 rounded-lg text-sm hover:bg-anqlba-accent/20 transition series-speak-btn">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.818 20.282A8.995 8.995 0 0112 21a9.001 9.001 0 006-15 4 4 0 11-8-4 8.996 8.996 0 00-2.182 3.718L2 15h4l-2 5z"></path></svg>
+                            <span id="speak-label-3">Listen to Description</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </section>
+        
+        <!-- 2. Unique Value Proposition Section (Original Content) -->
+        <section id="uvp" class="py-16 lg:py-24 bg-anqlba-bg">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <!-- ... UVP content ... -->
+            </div>
+        </section>
+
+        <!-- 3. Target Users Section (Original Content) -->
+        <section id="users" class="py-16 lg:py-24">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <!-- ... Users content ... -->
+            </div>
+        </section>
+
+        <!-- 4. Free Learning Games Section (Original Content) -->
+        <section id="games" class="py-16 lg:py-24 bg-white border-t border-gray-200">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <h2 class="text-3xl font-extrabold text-center text-anqlba-accent mb-4">
+                    🧠 Free Learning & Cognitive Games
+                </h2>
+                <p class="text-xl text-center text-gray-600 mb-12 max-w-3xl mx-auto">
+                    Simple, browser-based games designed to practice core cognitive, attention, and communication skills.
+                </p>
+
+                <div class="grid md:grid-cols-3 gap-8">
+                    <!-- Game Card 1: Color Match (Attention & Visual Discrimination) -->
+                    <div class="game-card bg-anqlba-bg p-6 rounded-xl shadow-lg border-t-4 border-anqlba-accent">
+                        <h4 class="text-xl font-bold text-anqlba-accent mb-3">Color-Word Match</h4>
+                        <p class="text-sm text-gray-600 mb-4">Match the *written word* with the correct color button. Focuses on attention and non-literal reading.</p>
+                        
+                        <div id="color-game-container" class="bg-white p-4 rounded-lg shadow-inner">
+                            <div class="text-center mb-4">
+                                <p class="text-gray-500 text-sm">Target Word:</p>
+                                <div id="color-word" class="text-4xl font-extrabold" style="min-height: 48px;">RED</div>
+                            </div>
+                            <div class="flex justify-around space-x-2 mb-4">
+                                <button id="btn-red" class="color-box w-1/3 h-16 rounded-lg bg-red-500 text-white font-bold text-xl shadow-lg" onclick="checkColorMatch('Red')"></button>
+                                <button id="btn-blue" class="color-box w-1/3 h-16 rounded-lg bg-blue-500 text-white font-bold text-xl shadow-lg" onclick="checkColorMatch('Blue')"></button>
+                                <button id="btn-yellow" class="color-box w-1/3 h-16 rounded-lg bg-yellow-500 text-white font-bold text-xl shadow-lg" onclick="checkColorMatch('Yellow')"></button>
+                            </div>
+                            <div id="color-result" class="text-center text-lg font-semibold h-6"></div>
+                            <button onclick="initColorMatch()" class="w-full mt-4 bg-gray-200 text-gray-800 py-2 rounded-lg hover:bg-gray-300 transition text-sm">New Match</button>
+                        </div>
+                    </div>
+                    
+                    <!-- Game Card 2: Emotion Matching -->
+                    <div class="game-card bg-anqlba-bg p-6 rounded-xl shadow-lg border-t-4 border-anqlba-primary">
+                        <h4 class="text-xl font-bold text-anqlba-primary mb-3">Emotion ID Match</h4>
+                        <p class="text-sm text-gray-600 mb-4">Match the feeling name to the correct face emoji. Focuses on social and emotional literacy.</p>
+                        
+                        <div id="emotion-game-container" class="bg-white p-4 rounded-lg shadow-inner">
+                            <div class="text-center mb-4">
+                                <p class="text-gray-500 text-sm">Find the face that feels:</p>
+                                <div id="emotion-word" class="text-4xl font-extrabold text-anqlba-primary" style="min-height: 48px;">HAPPY</div>
+                            </div>
+                            <div class="flex justify-around space-x-4 mb-4">
+                                <button class="emotion-button text-4xl p-2 rounded-full hover:bg-gray-100 transition" onclick="checkEmotionMatch('😀')">😀</button>
+                                <button class="emotion-button text-4xl p-2 rounded-full hover:bg-gray-100 transition" onclick="checkEmotionMatch('😢')">😢</button>
+                                <button class="emotion-button text-4xl p-2 rounded-full hover:bg-gray-100 transition" onclick="checkEmotionMatch('😡')">😡</button>
+                            </div>
+                            <div id="emotion-result" class="text-center text-lg font-semibold h-6"></div>
+                            <button onclick="initEmotionMatch()" class="w-full mt-4 bg-gray-200 text-gray-800 py-2 rounded-lg hover:bg-gray-300 transition text-sm">New Emotion</button>
+                        </div>
+                    </div>
+
+                    <!-- Game Card 3: Simple Sequencing -->
+                    <div class="game-card bg-anqlba-bg p-6 rounded-xl shadow-lg border-t-4 border-anqlba-secondary">
+                        <h4 class="text-xl font-bold text-anqlba-secondary mb-3">Simple Sequencing</h4>
+                        <p class="text-sm text-gray-600 mb-4">Click the buttons in the correct numerical order (1, 2, 3). Focuses on executive function and following instructions.</p>
+                        
+                        <div id="sequence-game-container" class="bg-white p-4 rounded-lg shadow-inner">
+                            <div class="text-center mb-4">
+                                <p class="text-gray-500 text-sm" id="sequence-prompt">Click: 1, 2, 3</p>
+                            </div>
+                            <div class="flex justify-around space-x-3 mb-4">
+                                <button id="seq-btn-1" onclick="checkSequence(1)" class="w-1/3 bg-anqlba-secondary text-white py-3 rounded-lg font-bold text-2xl shadow-md hover:bg-blue-600 transition">1</button>
+                                <button id="seq-btn-2" onclick="checkSequence(2)" class="w-1/3 bg-anqlba-secondary text-white py-3 rounded-lg font-bold text-2xl shadow-md hover:bg-blue-600 transition">2</button>
+                                <button id="seq-btn-3" onclick="checkSequence(3)" class="w-1/3 bg-anqlba-secondary text-white py-3 rounded-lg font-bold text-2xl shadow-md hover:bg-blue-600 transition">3</button>
+                            </div>
+                            <div id="sequence-result" class="text-center text-lg font-semibold h-6"></div>
+                            <button onclick="initSequenceGame()" class="w-full mt-4 bg-gray-200 text-gray-800 py-2 rounded-lg hover:bg-gray-300 transition text-sm">Reset Sequence</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+        
+        <!-- REMOVED: 6. Accessibility Section - Content is now in #features -->
+
+        <!-- 7. Pricing & Business Model Section (Currency in Birr (ETB)) -->
+        <section id="pricing" class="py-16 lg:py-24 bg-anqlba-bg border-t border-gray-200">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <h2 class="text-3xl font-extrabold text-center text-anqlba-text mb-4">
+                    Flexible Plans for Every Need
+                </h2>
+                <p class="text-xl text-center text-gray-600 mb-12 max-w-3xl mx-auto">
+                    Start with our freemium option or empower your entire center with an enterprise solution. All prices are listed in Ethiopian Birr (ETB).
+                </p>
+
+                <div class="grid lg:grid-cols-3 gap-8 items-center">
+                    <!-- Pricing Card 1: Parent Freemium -->
+                    <div class="bg-white p-8 rounded-2xl shadow-xl border border-gray-100 h-full flex flex-col justify-between">
+                        <div>
+                            <h3 class="text-2xl font-bold text-gray-800 mb-2">Parent / Caregiver</h3>
+                            <p class="text-gray-500 mb-6">Essential home support and communication.</p>
+                            <p class="text-4xl font-extrabold text-anqlba-accent mb-6">
+                                Free
+                                <span class="text-lg font-medium text-gray-400">/ forever</span>
+                            </p>
+                            <ul class="space-y-3 text-gray-600 mb-8">
+                                <li class="flex items-center"><svg class="w-5 h-5 text-anqlba-accent mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>Daily Activity Reports</li>
+                                <li class="flex items-center"><svg class="w-5 h-5 text-anqlba-accent mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>Basic Communication Channel</li>
+                                <li class="flex items-center"><svg class="w-5 h-5 text-anqlba-accent mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>Limited At-Home Practice</li>
+                                <li class="flex items-center text-gray-400"><svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>IEP/ILP Tracking (Add-on)</li>
+                            </ul>
+                        </div>
+                        <button class="w-full py-3 bg-anqlba-accent text-white font-bold rounded-xl hover:bg-emerald-600 transition duration-300 shadow-lg mt-auto">
+                            Sign Up - Always Free
+                        </button>
+                    </div>
+
+                    <!-- Pricing Card 2: School Subscription (BEST VALUE) -->
+                    <div class="bg-anqlba-primary p-8 rounded-2xl shadow-2xl border-4 border-anqlba-accent transform scale-105 h-full flex flex-col justify-between">
+                        <div class="text-white">
+                            <span class="inline-block bg-anqlba-accent text-anqlba-text text-xs font-bold px-3 py-1 rounded-full uppercase mb-4">Best Value</span>
+                            <h3 class="text-2xl font-bold mb-2">School & Center</h3>
+                            <p class="text-indigo-200 mb-6">Full suite of educator tools and collaboration features, priced in Birr (ETB).</p>
+                            <p class="text-4xl font-extrabold mb-6">
+                                499 Birr / educator
+                                <span class="text-lg font-medium text-indigo-200">/ month</span>
+                            </p>
+                            <ul class="space-y-3 mb-8">
+                                <li class="flex items-center"><svg class="w-5 h-5 text-anqlba-accent mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>Full Educator Dashboard & Analytics</li>
+                                <li class="flex items-center"><svg class="w-5 h-5 text-anqlba-accent mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>Unlimited Lesson Plans & Resources</li>
+                                <li class="flex items-center"><svg class="w-5 h-5 text-anqlba-accent mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>Multi-Teacher Collaboration</li>
+                                <li class="flex items-center"><svg class="w-5 h-5 text-anqlba-accent mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>IEP/ILP Compliance Tracking</li>
+                            </ul>
+                        </div>
+                        <a href="mailto:sales@anqlba.com" class="w-full py-3 bg-white text-anqlba-primary font-bold rounded-xl hover:bg-gray-100 transition duration-300 shadow-lg mt-auto text-center">
+                            Request Quote
+                        </a>
+                    </div>
+
+                    <!-- Pricing Card 3: Enterprise -->
+                    <div class="bg-white p-8 rounded-2xl shadow-xl border border-gray-100 h-full flex flex-col justify-between">
+                        <div>
+                            <h3 class="text-2xl font-bold text-gray-800 mb-2">Enterprise / NGO</h3>
+                            <p class="text-gray-500 mb-6">Custom integration and advanced analytics for large organizations.</p>
+                            <p class="text-4xl font-extrabold text-anqlba-secondary mb-6">
+                                Custom
+                                <span class="text-lg font-medium text-gray-400">/ annual</span>
+                            </p>
+                            <ul class="space-y-3 text-gray-600 mb-8">
+                                <li class="flex items-center"><svg class="w-5 h-5 text-anqlba-secondary mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>Dedicated Success Manager</li>
+                                <li class="flex items-center"><svg class="w-5 h-5 text-anqlba-secondary mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>API & LTI Integration (Custom)</li>
+                                <li class="flex items-center"><svg class="w-5 h-5 text-anqlba-secondary mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>Advanced Behavior Analytics Suite</li>
+                                <li class="flex items-center"><svg class="w-5 h-5 text-anqlba-secondary mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>SLA and Priority Support</li>
+                            </ul>
+                        </div>
+                        <a href="mailto:enterprise@anqlba.com" class="w-full py-3 bg-anqlba-secondary text-white font-bold rounded-xl hover:bg-blue-600 transition duration-300 shadow-lg mt-auto text-center">
+                            Contact Sales
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 8. Impact Metrics CTA (Original Content) -->
+        <section class="py-16 bg-white border-t border-gray-200 text-center">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <h2 class="text-3xl font-extrabold text-anqlba-text mb-4">
+                    Ready to Transform Inclusive Education?
+                </h2>
+                <p class="text-xl text-gray-600 mb-8">
+                    Join hundreds of educators and parents already seeing the difference.
+                </p>
+                <a href="#pricing" class="inline-block bg-anqlba-accent text-white py-3 px-8 text-xl rounded-xl shadow-2xl shadow-anqlba-accent/40 hover:bg-emerald-600 transition duration-300 font-bold transform hover:scale-105">
+                    Get Started Today
+                </a>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Footer (Original Content) -->
+    <footer class="bg-anqlba-primary py-12">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-white text-center">
+            <p class="text-lg font-semibold mb-2">Anqlba - Empowering Potential.</p>
+            <p class="text-sm text-indigo-200">© 2025 All rights reserved. Built with love in Ethiopia.</p>
+            <div class="mt-4 space-x-4 text-sm">
+                <a href="#" class="hover:text-anqlba-accent transition">Privacy Policy</a>
+                <a href="#" class="hover:text-anqlba-accent transition">Terms of Service</a>
+                <a href="mailto:support@anqlba.com" class="hover:text-anqlba-accent transition">Support</a>
+            </div>
+        </div>
+    </footer>
+
+    <!-- JavaScript for Mobile Menu Toggle, Game Logic, Localization, and TTS -->
+    <script>
+        // --- Global Config and API Setup ---
+        const API_KEY = "";
+        const TRANSLATION_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${API_KEY}`;
+        const TTS_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-tts:generateContent?key=${API_KEY}`;
+
+        let currentLanguage = 'en';
+
+        // Helper function for custom alerts
+        function customAlert(title, message) {
+            document.getElementById('message-title').textContent = title;
+            document.getElementById('message-content').textContent = message;
+            document.getElementById('message-box').classList.remove('hidden');
+        }
+
+        // --- Core Content Map for Translation ---
+        // Note: The new feature titles are NOT included here as they are simple and not expected to change frequently, 
+        // unlike the series descriptions which are highly detailed.
+        const textContentMap = {
+            'doc-title': { en: 'Anqlba – Inclusive Learning & Support Platform' },
+            'hero-tag': { en: 'Unlock Ability, Empower Educators, Strengthen Collaboration' },
+            'hero-title': { en: 'The Inclusive Learning Ecosystem' },
+            'hero-subtitle': { en: 'A modern, supportive platform designed to integrate personalized education, assistive communication, and behavioral insights for children and youth with special needs.' },
+            'hero-cta': { en: 'Explore Core Features' },
+
+            'series-title-main': { en: '🎓 Key Teaching and Support Series' },
+            'series-subtitle-main': { en: 'Expert-led modules to empower every member of the support team: Educators, Parents, and Caregivers.' },
+            
+            'series-title-1': { en: '1. IEP Mastery for Ethiopian Classrooms' },
+            'series-desc-1': { en: 'A comprehensive training on creating, implementing, and tracking Individualized Education Programs (IEPs) that meet local standards while integrating global best practices for diverse special needs.' },
+            
+            'series-title-2': { en: '2. Building Positive Home Routines' },
+            'series-desc-2': { en: 'Practical strategies for parents and caregivers to establish consistent, supportive routines. Topics include behavioral support, sensory integration tips, and effective communication techniques at home.' },
+            
+            'series-title-3': { en: '3. Communication through Visuals (AAC)' },
+            'series-desc-3': { en: 'A practical guide to using Augmentative and Alternative Communication (AAC) tools. Learn how to create custom visual supports, schedules, and communication boards tailored to the child\'s context.' },
+
+            'speak-label-1': { en: 'Listen to Description' },
+            'speak-label-2': { en: 'Listen to Description' },
+            'speak-label-3': { en: 'Listen to Description' },
+        };
+
+        // --- Translation Logic (Uses Gemini API) ---
+
+        async function callTranslationApi(targetLang) {
+            if (targetLang === 'en') {
+                // If switching back to English, use the stored English texts directly
+                for (const id in textContentMap) {
+                    const element = document.getElementById(id);
+                    if (element) {
+                        element.textContent = textContentMap[id].en;
+                    }
+                }
+                return;
+            }
+
+            // Check if translation is already cached
+            const isCached = Object.values(textContentMap).every(item => item[targetLang]);
+            if (isCached) {
+                // Update the UI from cache
+                for (const id in textContentMap) {
+                    const element = document.getElementById(id);
+                    if (element && textContentMap[id][targetLang]) {
+                        element.textContent = textContentMap[id][targetLang];
+                    }
+                }
+                return;
+            }
+
+            // Collect all English texts that need translation
+            const textsToTranslate = Object.values(textContentMap).map(item => item.en).join('|||');
+            const targetLangName = targetLang === 'am' ? 'Amharic' : 'Afaan Oromo';
+            const userQuery = `Translate the following English sentences into ${targetLangName}. Keep the numbering/ordering exactly the same. Respond with ONLY the translated text, using '|||' as the delimiter between sentences: ${textsToTranslate}`;
+
+            const payload = {
+                contents: [{ parts: [{ text: userQuery }] }],
+                systemInstruction: { parts: [{ text: "You are a professional translator. Only output the requested translated text, separated by '|||'." }] },
+            };
+
+            let attempts = 0;
+            const maxAttempts = 5;
+            let delay = 1000;
+            
+            // Show loading state
+            document.body.style.cursor = 'wait';
+
+            while (attempts < maxAttempts) {
+                try {
+                    const response = await fetch(TRANSLATION_URL, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(payload)
+                    });
+
+                    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+                    
+                    const result = await response.json();
+                    const translatedTextRaw = result.candidates?.[0]?.content?.parts?.[0]?.text;
+
+                    if (!translatedTextRaw) throw new Error('Translation failed or returned empty content.');
+
+                    // Parse the translated string back into an array
+                    const translatedTexts = translatedTextRaw.split('|||').map(t => t.trim());
+                    
+                    // Update the textContentMap with translations
+                    const keys = Object.keys(textContentMap);
+                    translatedTexts.forEach((text, index) => {
+                        const key = keys[index];
+                        if (key) {
+                            textContentMap[key][targetLang] = text;
+                        }
+                    });
+
+                    // Update the UI
+                    for (const id in textContentMap) {
+                        const element = document.getElementById(id);
+                        if (element && textContentMap[id][targetLang]) {
+                            element.textContent = textContentMap[id][targetLang];
+                        }
+                    }
+                    
+                    // Update Nav Links (handles hardcoded links like 'Features', 'Users', etc.)
+                    document.querySelectorAll('.nav-link, .nav-cta').forEach(el => {
+                        const langData = el.getAttribute(`data-${targetLang}`);
+                        if (langData) {
+                            el.textContent = langData;
+                        }
+                    });
+                    
+                    document.body.style.cursor = 'default';
+                    return;
+
+                } catch (error) {
+                    console.error(`Attempt ${attempts + 1} failed:`, error);
+                    attempts++;
+                    if (attempts < maxAttempts) {
+                        await new Promise(resolve => setTimeout(resolve, delay));
+                        delay *= 2; // Exponential backoff
+                    } else {
+                        customAlert('Translation Error', 'Could not fetch translations. Please try again later or switch back to English.');
+                        document.body.style.cursor = 'default';
+                    }
+                }
+            }
+        }
+
+        async function changeLanguage(lang) {
+            currentLanguage = lang;
+            
+            // First, update all hard-coded/cached nav links
+            document.querySelectorAll('.nav-link, .nav-cta').forEach(el => {
+                const langData = el.getAttribute(`data-${lang}`);
+                if (langData) {
+                    el.textContent = langData;
+                } else if (lang === 'en') {
+                    el.textContent = el.getAttribute('data-en');
+                }
+            });
+
+            // Second, call API for dynamic content
+            await callTranslationApi(lang);
+            
+            // Update TTS button labels based on the new language
+            document.querySelectorAll('.series-speak-btn span').forEach(span => {
+                 span.textContent = textContentMap[span.id][currentLanguage] || textContentMap[span.id].en;
+            });
+        }
+
+        // --- TTS Helper Functions ---
+
+        function base64ToArrayBuffer(base64) {
+            const binaryString = atob(base64);
+            const len = binaryString.length;
+            const bytes = new Uint8Array(len);
+            for (let i = 0; i < len; i++) {
+                bytes[i] = binaryString.charCodeAt(i);
+            }
+            return bytes.buffer;
+        }
+
+        function pcmToWav(pcm16, sampleRate) {
+            const numChannels = 1;
+            const bitsPerSample = 16;
+            const blockAlign = numChannels * (bitsPerSample / 8);
+            const byteRate = sampleRate * blockAlign;
+            const dataSize = pcm16.byteLength;
+            const buffer = new ArrayBuffer(44 + dataSize);
+            const view = new DataView(buffer);
+
+            let offset = 0;
+
+            // Write RIFF header
+            function writeString(str) {
+                for (let i = 0; i < str.length; i++) {
+                    view.setUint8(offset++, str.charCodeAt(i));
+                }
+            }
+
+            function writeUint32(val) {
+                view.setUint32(offset, val, true);
+                offset += 4;
+            }
+
+            function writeUint16(val) {
+                view.setUint16(offset, val, true);
+                offset += 2;
+            }
+
+            writeString('RIFF'); // Chunk ID
+            writeUint32(36 + dataSize); // Chunk Size
+            writeString('WAVE'); // Format
+
+            // Write fmt sub-chunk
+            writeString('fmt '); // Sub-chunk 1 ID
+            writeUint32(16); // Sub-chunk 1 Size (16 for PCM)
+            writeUint16(1); // Audio Format (1 for PCM)
+            writeUint16(numChannels); // Num Channels
+            writeUint32(sampleRate); // Sample Rate
+            writeUint32(byteRate); // Byte Rate
+            writeUint16(blockAlign); // Block Align
+            writeUint16(bitsPerSample); // Bits Per Sample
+
+            // Write data sub-chunk
+            writeString('data'); // Sub-chunk 2 ID
+            writeUint32(dataSize); // Sub-chunk 2 Size
+
+            // Write PCM data
+            const pcmBytes = new Uint8Array(pcm16.buffer);
+            for (let i = 0; i < dataSize; i++) {
+                view.setUint8(offset++, pcmBytes[i]);
+            }
+
+            return new Blob([buffer], { type: 'audio/wav' });
+        }
+
+
+        // --- TTS Main Function ---
+
+        async function speakContent(contentId, buttonElement) {
+            const textElement = document.getElementById(contentId);
+            const textToSpeak = textElement.textContent;
+            
+            // Determine the voice configuration based on the current language
+            // Kore voice is used as a neutral, clear voice.
+            let voiceConfig = { prebuiltVoiceConfig: { voiceName: "Kore" } };
+            // The model generally supports Amharic and Afaan Oromo through text detection.
+
+            const payload = {
+                contents: [{
+                    parts: [{ text: textToSpeak }]
+                }],
+                generationConfig: {
+                    responseModalities: ["AUDIO"],
+                    speechConfig: { voiceConfig: voiceConfig }
+                },
+                model: "gemini-2.5-flash-preview-tts"
+            };
+
+            const originalText = buttonElement.querySelector('span').textContent;
+            
+            // Show loading state
+            buttonElement.disabled = true;
+            buttonElement.classList.remove('bg-anqlba-primary/10', 'bg-anqlba-secondary/10', 'bg-anqlba-accent/10', 'hover:bg-anqlba-primary/20', 'hover:bg-anqlba-secondary/20', 'hover:bg-anqlba-accent/20');
+            buttonElement.classList.add('bg-gray-300', 'animate-pulse');
+            buttonElement.querySelector('span').textContent = 'Loading Audio...';
+
+            let attempts = 0;
+            const maxAttempts = 3;
+            let delay = 1000;
+
+            while (attempts < maxAttempts) {
+                try {
+                    const response = await fetch(TTS_URL, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(payload)
+                    });
+
+                    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+
+                    const result = await response.json();
+                    const part = result?.candidates?.[0]?.content?.parts?.[0];
+                    const audioData = part?.inlineData?.data;
+                    const mimeType = part?.inlineData?.mimeType;
+
+                    if (audioData && mimeType && mimeType.startsWith("audio/")) {
+                        // Extract sample rate from mimeType, defaults to 16000
+                        const rateMatch = mimeType.match(/rate=(\d+)/);
+                        const sampleRate = rateMatch ? parseInt(rateMatch[1], 10) : 16000;
+
+                        const pcmData = base64ToArrayBuffer(audioData);
+                        const pcm16 = new Int16Array(pcmData);
+                        const wavBlob = pcmToWav(pcm16, sampleRate);
+                        const audioUrl = URL.createObjectURL(wavBlob);
+
+                        const audio = new Audio(audioUrl);
+                        audio.play();
+
+                        audio.onended = () => {
+                            // Restore button state on completion
+                            resetButton(buttonElement, originalText);
+                            URL.revokeObjectURL(audioUrl);
+                        };
+                        audio.onerror = () => {
+                            customAlert('Audio Error', 'Could not play audio. File might be corrupted.');
+                            resetButton(buttonElement, originalText);
+                            URL.revokeObjectURL(audioUrl);
+                        };
+                        return;
+
+                    } else {
+                        throw new Error('TTS response missing audio data.');
+                    }
+                } catch (error) {
+                    console.error(`TTS Attempt ${attempts + 1} failed:`, error);
+                    attempts++;
+                    if (attempts < maxAttempts) {
+                        await new Promise(resolve => setTimeout(resolve, delay));
+                        delay *= 2;
+                    } else {
+                        customAlert('TTS Error', 'Failed to generate speech. The text might be too long or the API is unavailable.');
+                        resetButton(buttonElement, originalText);
+                    }
+                }
+            }
+        }
+
+        function resetButton(buttonElement, originalText) {
+            buttonElement.disabled = false;
+            buttonElement.classList.remove('bg-gray-300', 'animate-pulse');
+            
+            // Re-add color classes based on the parent card structure
+            const parent = buttonElement.closest('.bg-anqlba-bg');
+            if (parent && parent.classList.contains('border-t-4')) {
+                const borderClass = Array.from(parent.classList).find(c => c.startsWith('border-t-4'));
+                if (borderClass) {
+                    const color = borderClass.split('-').pop(); // e.g., 'primary'
+                    buttonElement.classList.add(`bg-anqlba-${color}/10`, `hover:bg-anqlba-${color}/20`);
+                } else {
+                    // Fallback to primary if structure is unexpected
+                    buttonElement.classList.add('bg-anqlba-primary/10', 'hover:bg-anqlba-primary/20');
+                }
+            }
+            buttonElement.querySelector('span').textContent = originalText;
+        }
+
+        // --- Game Logic (Existing content) ---
+
+        const colorWords = ['RED', 'BLUE', 'YELLOW', 'GREEN', 'PURPLE'];
+        let currentColorWord = '';
+        const colorMap = {
+            'RED': 'Red',
+            'BLUE': 'Blue',
+            'YELLOW': 'Yellow',
+            'GREEN': 'Green',
+            'PURPLE': 'Purple'
+        };
+        const colorClasses = {
+            'Red': 'bg-red-500',
+            'Blue': 'bg-blue-500',
+            'Yellow': 'bg-yellow-500',
+            'Green': 'bg-anqlba-accent', // Using brand green
+            'Purple': 'bg-purple-500'
+        };
+        const colorBtnIds = ['btn-red', 'btn-blue', 'btn-yellow'];
+
+        function initColorMatch() {
+            const resultDisplay = document.getElementById('color-result');
+            resultDisplay.textContent = '';
+            resultDisplay.className = 'text-lg font-semibold h-6';
+
+            const targetWord = colorWords[Math.floor(Math.random() * colorWords.length)];
+            currentColorWord = targetWord;
+            document.getElementById('color-word').textContent = targetWord;
+            document.getElementById('color-word').style.color = colorClasses[colorMap[targetWord]].replace('bg-', 'text-');
+
+            let colors = [colorMap[targetWord]];
+            const allColors = Object.values(colorMap).filter(c => c !== colorMap[targetWord]);
+            
+            while (colors.length < 3) {
+                const randomColor = allColors[Math.floor(Math.random() * allColors.length)];
+                if (!colors.includes(randomColor)) {
+                    colors.push(randomColor);
+                }
+            }
+            colors.sort(() => Math.random() - 0.5);
+
+            colorBtnIds.forEach((id, index) => {
+                const btn = document.getElementById(id);
+                const colorName = colors[index];
+                
+                btn.className = 'color-box w-1/3 h-16 rounded-lg text-white font-bold text-xl shadow-lg';
+                btn.classList.add(colorClasses[colorName]);
+                btn.textContent = '';
+                btn.onclick = () => checkColorMatch(colorName);
+            });
+        }
+
+        function checkColorMatch(clickedColor) {
+            const targetColor = colorMap[currentColorWord];
+            const resultDisplay = document.getElementById('color-result');
+            const buttons = document.querySelectorAll('#color-game-container button[id^="btn-"]');
+
+            if (clickedColor === targetColor) {
+                resultDisplay.textContent = '✅ Correct! Well done!';
+                resultDisplay.className = 'text-lg font-semibold h-6 text-anqlba-success';
+                buttons.forEach(btn => btn.onclick = null);
+            } else {
+                resultDisplay.textContent = '❌ Try again. Find the ' + targetColor.toUpperCase() + '.';
+                resultDisplay.className = 'text-lg font-semibold h-6 text-anqlba-error';
+            }
+        }
+        
+        const emotions = [
+            { word: 'HAPPY', emoji: '😀' },
+            { word: 'SAD', emoji: '😢' },
+            { word: 'ANGRY', emoji: '😡' },
+            { word: 'SCARED', emoji: '😨' },
+            { word: 'SURPRISED', emoji: '😮' }
+        ];
+        let currentEmotion = {};
+        const emotionEmojis = ['😀', '😢', '😡', '😨', '😮'];
+        
+        function initEmotionMatch() {
+            const resultDisplay = document.getElementById('emotion-result');
+            resultDisplay.textContent = '';
+            resultDisplay.className = 'text-lg font-semibold h-6';
+
+            const targetIndex = Math.floor(Math.random() * emotions.length);
+            currentEmotion = emotions[targetIndex];
+            document.getElementById('emotion-word').textContent = currentEmotion.word;
+
+            let emojis = [currentEmotion.emoji];
+            let allEmojis = emotionEmojis.filter(e => e !== currentEmotion.emoji);
+            
+            while (emojis.length < 3) {
+                const randomEmoji = allEmojis[Math.floor(Math.random() * allEmojis.length)];
+                if (!emojis.includes(randomEmoji)) {
+                    emojis.push(randomEmoji);
+                }
+                allEmojis = allEmojis.filter(e => e !== randomEmoji);
+            }
+            emojis.sort(() => Math.random() - 0.5);
+
+            const buttons = document.querySelectorAll('#emotion-game-container .emotion-button');
+            buttons.forEach((btn, index) => {
+                const emoji = emojis[index];
+                btn.textContent = emoji;
+                btn.onclick = () => checkEmotionMatch(emoji);
+                btn.disabled = false;
+            });
+        }
+
+        function checkEmotionMatch(clickedEmoji) {
+            const targetEmoji = currentEmotion.emoji;
+            const resultDisplay = document.getElementById('emotion-result');
+            const buttons = document.querySelectorAll('#emotion-game-container .emotion-button');
+
+            if (clickedEmoji === targetEmoji) {
+                resultDisplay.textContent = '✅ That is ' + currentEmotion.word + '!';
+                resultDisplay.className = 'text-lg font-semibold h-6 text-anqlba-success';
+                buttons.forEach(btn => btn.onclick = null);
+            } else {
+                resultDisplay.textContent = '❌ Keep looking for ' + currentEmotion.word + '.';
+                resultDisplay.className = 'text-lg font-semibold h-6 text-anqlba-error';
+            }
+        }
+        
+        let currentSequence = 1;
+        
+        function initSequenceGame() {
+            currentSequence = 1;
+            document.getElementById('sequence-prompt').textContent = 'Click: 1, 2, 3';
+            document.getElementById('sequence-result').textContent = '';
+            document.getElementById('sequence-result').className = 'text-lg font-semibold h-6';
+
+            for (let i = 1; i <= 3; i++) {
+                const btn = document.getElementById('seq-btn-' + i);
+                btn.style.opacity = '1';
+                btn.style.cursor = 'pointer';
+                btn.disabled = false;
+            }
+        }
+
+        function checkSequence(clickedNumber) {
+            const resultDisplay = document.getElementById('sequence-result');
+            const clickedBtn = document.getElementById('seq-btn-' + clickedNumber);
+
+            if (clickedNumber === currentSequence) {
+                clickedBtn.style.opacity = '0.5';
+                clickedBtn.disabled = true;
+
+                if (currentSequence === 3) {
+                    resultDisplay.textContent = '🎉 Sequence Complete! Great Job!';
+                    resultDisplay.className = 'text-lg font-semibold h-6 text-anqlba-success';
+                } else {
+                    currentSequence++;
+                    document.getElementById('sequence-prompt').textContent = 'Next, click: ' + currentSequence;
+                }
+            } else {
+                resultDisplay.textContent = '❌ That was not ' + currentSequence + '. Try again!';
+                resultDisplay.className = 'text-lg font-semibold h-6 text-anqlba-error';
+                
+                clickedBtn.style.transform = 'scale(1.1)';
+                setTimeout(() => clickedBtn.style.transform = 'scale(1)', 100);
+            }
+        }
+
+        // --- DOM Ready Initialization ---
+        document.addEventListener('DOMContentLoaded', () => {
+            // Mobile Menu Toggle Logic
+            const menuButton = document.getElementById('mobile-menu-button');
+            const mobileMenu = document.getElementById('mobile-menu');
+
+            menuButton.addEventListener('click', () => {
+                mobileMenu.classList.toggle('hidden');
+            });
+
+            // Populate mobile menu links (simplified)
+            const desktopLinks = document.querySelectorAll('nav .nav-link, nav .nav-cta');
+            mobileMenu.innerHTML = ''; // Clear existing
+            desktopLinks.forEach(link => {
+                // Skip the Accessibility link as it's merged
+                if (link.getAttribute('data-en') === 'Accessibility') return;
+                
+                const mobileLink = link.cloneNode(true);
+                mobileLink.classList.remove('text-lg', 'space-x-4');
+                mobileLink.classList.add('block', 'py-2', 'px-3', 'text-base', 'font-medium', 'hover:bg-gray-50', 'rounded-lg', 'text-anqlba-text');
+                mobileLink.classList.remove('hidden', 'text-anqlba-primary'); // Ensure CTA shows/colors reset
+                
+                mobileLink.addEventListener('click', () => {
+                    mobileMenu.classList.add('hidden');
+                });
+                mobileMenu.appendChild(mobileLink);
+            });
+
+            // Initial Game Setup
+            initColorMatch();
+            initEmotionMatch();
+            initSequenceGame();
+            
+            // Initial language update for Amharic/Afaan Oromo
+            document.getElementById('language-selector').value = 'en';
+            changeLanguage('en'); 
+        });
+    </script>
+</body>
+</html>
