@@ -1,3 +1,10 @@
+// Path: /artifacts/{appId}/users/{userId}/user_data/profile
+const userDocRef = doc(db, `artifacts/${appId}/users/${userCredential.user.uid}/user_data/profile`);
+await setDoc(userDocRef, {
+  email: userCredential.user.email,
+  createdAt: new Date().toISOString(),
+  appId: appId
+});
 import React, { useState, useEffect, useCallback } from 'react';
 import { initializeApp } from 'firebase/app';
 import { 
@@ -412,5 +419,6 @@ const App = () => {
     </div>
   );
 };
+
 
 export default App;
